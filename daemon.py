@@ -22,13 +22,16 @@ class Daemon:
 		self.GPS = {}
 		
 	def gps(self):
-        return self.GPS
+		return self.GPS
 
-    def json(self):
-        return json.dumps(self.GPS)
+	def json(self):
+		return json.dumps(self.GPS)
 
-    def pjson(self):
-        return json.dumps(self.GPS, indent=4, separators=(',', ': '))
+	def pjson(self):
+		return json.dumps(self.GPS, indent=4, separators=(',', ': '))
+	
+	def setGps(self, gps):
+		self.GPS = gps
 		
 	def daemonize(self):
 		"""

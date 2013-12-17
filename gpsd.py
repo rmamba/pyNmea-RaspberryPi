@@ -13,6 +13,7 @@ from decimal import Decimal
 import sys
 import time
 import math
+import json
 
 #sudo apt-get install python-serial
 import serial
@@ -39,37 +40,35 @@ class MyDaemon(Daemon):
         return val
     
     def run(self):
+        GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
         while True:
             line = self.__ser.readline()
             if (self.__hislog != None):
                 self.__hislog.write(line)
             if (line.startswith('$GPGGA')):
                 GGA = line.split(',')
-                self.GPS['DateTime']['time'] = GGA[1]
-                self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
-                self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-                self.GPS['Satellites'] = GGA[7]
-                self.GPS['Dilution'] = GGA[8]
-                self.GPS['Alt'] = float(GGA[9])
+                GPS['DateTime']['time'] = GGA[1]
+                GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
+                GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
+                GPS['Satellites'] = GGA[7]
+                GPS['Dilution'] = GGA[8]
+                GPS['Alt'] = float(GGA[9])
+                self.setGps(GPS)
             if (line.startswith('$GPRMC')):
                 RMC = line.split(',')
-                self.GPS['DateTime']['utc'] = RMC[1]
-                self.GPS['Warning'] = RMC[2]
+                GPS['DateTime']['utc'] = RMC[1]
+                GPS['Warning'] = RMC[2]
                 
-                self.GPS['Speed']['knots'] = float(RMC[7])
-                self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.85200000
-                self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.15077945
-                self.GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
-                self.GPS['Direction'] = float(RMC[8])
-                self.GPS['DateTime']['date'] = RMC[9]
+                GPS['Speed']['knots'] = float(RMC[7])
+                GPS['Speed']['kmh'] = float(RMC[7]) * 1.85200000
+                GPS['Speed']['kmh'] = float(RMC[7]) * 1.15077945
+                GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
+                GPS['Direction'] = float(RMC[8])
+                GPS['DateTime']['date'] = RMC[9]
+                self.setGps(GPS)
             
     def begin(self):
-	print self.GPS
         self._writeLog("Starting(%s)..." % self.pidfile)
-        self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
-        #self.nmea = NMEA(self.__device, self.__baud, self.__timeout)
-
-        print self.GPS
 
         try:
             self.__hislog = None
