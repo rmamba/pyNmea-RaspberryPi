@@ -71,15 +71,15 @@ class MyDaemon(Daemon):
         
         try:
             self.__hislog = None
-            if (self.__history != None):
-                self.__hislog = open(self.__history, 'w')
+            if (self.history != None):
+                self.__hislog = open(self.history, 'w')
         except:
-            self._writeErr("Exception crating history file %s" % self.__history)
+            self._writeErr("Exception crating history file %s" % self.history)
             self.stop()
         
         try:
             self._writeLog("Opening port %s" % self.__device)
-            self.__ser = serial.Serial(port=self.__device, baudrate=self.__baud, timeout=self.__timeout)
+            self.__ser = serial.Serial(port=self.device, baudrate=self.baud, timeout=self.timeout)
             if (self.__ser != None):
                 self._writeLog("Opened...")
                 

@@ -15,10 +15,10 @@ class Daemon:
 		self.stderr = stderr
 		self.pidfile = pidfile
 		self.nmea = None
-		self.__device = device
-		self.__baud = baud
-		self.__timeout = 1
-		self.__history = history
+		self.device = device
+		self.baud = baud
+		self.timeout = 1
+		self.history = history
 		
 	def daemonize(self):
 		"""
