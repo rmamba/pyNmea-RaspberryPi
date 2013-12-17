@@ -19,6 +19,7 @@ class Daemon:
 		self.baud = baud
 		self.timeout = 1
 		self.history = history
+		self.GPS = {}
 		
 	def daemonize(self):
 		"""

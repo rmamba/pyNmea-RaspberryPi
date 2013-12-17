@@ -28,14 +28,14 @@ class MyDaemon(Daemon):
         sys.stderr.flush()
     def _toDoubleLatLong(self, latlon, side):
         val = 0
-        tmp = Decimal(latlon)
+        tmp = float(latlon)
         tmp /= 100
         val = math.floor(tmp)
         tmp = (tmp - val) * 100
         val += tmp/60
         tmp -= math.floor(tmp)
         tmp *= 60
-        if ((side.ToUpper() == "S") or (side.ToUpper()=="W")):
+        if ((side.upper() == "S") or (side.upper()=="W")):
             val *= -1
         return val
     
@@ -44,31 +44,34 @@ class MyDaemon(Daemon):
             line = self.__ser.readline()
             if (self.__hislog != None):
                 self.__hislog.write(line)
-            if (line.startwith('$GPGGA')):
+            if (line.startswith('$GPGGA')):
                 GGA = line.split(',')
                 self.GPS['DateTime']['time'] = GGA[1]
                 self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
                 self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
                 self.GPS['Satellites'] = GGA[7]
                 self.GPS['Dilution'] = GGA[8]
-                self.GPS['Alt'] = GGA[9]
-            if (line.startwith('$GPRMC')):
+                self.GPS['Alt'] = float(GGA[9])
+            if (line.startswith('$GPRMC')):
                 RMC = line.split(',')
                 self.GPS['DateTime']['utc'] = RMC[1]
                 self.GPS['Warning'] = RMC[2]
                 
-                self.GPS['Speed']['knots'] = RMC[7]
-                self.GPS['Speed']['kmh'] = RMC[7] * 1.85200000
-                self.GPS['Speed']['kmh'] = RMC[7] * 1.15077945
-                self.GPS['Speed']['mps'] = RMC[7] * 0.51444444
-                self.GPS['Direction'] = RMC[8]
+                self.GPS['Speed']['knots'] = float(RMC[7])
+                self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.85200000
+                self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.15077945
+                self.GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
+                self.GPS['Direction'] = float(RMC[8])
                 self.GPS['DateTime']['date'] = RMC[9]
             
     def begin(self):
+	print self.GPS
         self._writeLog("Starting(%s)..." % self.pidfile)
-        self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc', 'time', 'date'}, 'Speed': {'knots', 'kmh', 'mph', 'mps'}, 'Warning': None }
+        self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
         #self.nmea = NMEA(self.__device, self.__baud, self.__timeout)
-        
+
+        print self.GPS
+
         try:
             self.__hislog = None
             if (self.history != None):
@@ -96,9 +99,18 @@ class MyDaemon(Daemon):
         del self.__hislog
         self._writeLog("Exiting...")
 
+    def gps(self):
+	return self.GPS
+
+    def json(self):
+	return json.dumps(self.GPS)
+
+    def pjson(self):
+	return json.dumps(self.GPS, indent=4, separators=(',', ': '))
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("usage: %s start|stop|restart|location|json|pjson" % sys.argv[0])
+        print("usage: %s start|stop|restart|gps|json|pjson" % sys.argv[0])
         sys.exit(2)
     
     f = open('gpsd.config', 'r')
@@ -122,8 +134,12 @@ if __name__ == "__main__":
         daemon.stop()
     elif 'restart' == sys.argv[1]:
         daemon.restart()
-    elif 'location' == sys.argv[1]:
-        print json.dumps(daemon.GPS) #, indent=4, separators=(',', ': '))
+    elif 'gps' == sys.argv[1]:
+        print daemon.gps()
+    elif 'json' == sys.argv[1]:
+        print daemon.json()
+    elif 'pjson' == sys.argv[1]:
+        print daemon.pjson()
     else:
         print("Unknown command")
         sys.exit(2)
