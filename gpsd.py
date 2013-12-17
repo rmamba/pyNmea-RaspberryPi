@@ -13,7 +13,6 @@ from decimal import Decimal
 import sys
 import time
 import math
-import json
 
 #sudo apt-get install python-serial
 import serial
@@ -98,15 +97,6 @@ class MyDaemon(Daemon):
         del self.__ser
         del self.__hislog
         self._writeLog("Exiting...")
-
-    def gps(self):
-	return self.GPS
-
-    def json(self):
-	return json.dumps(self.GPS)
-
-    def pjson(self):
-	return json.dumps(self.GPS, indent=4, separators=(',', ': '))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

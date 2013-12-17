@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, time, atexit
+import sys, os, time, atexit, json
 from signal import SIGTERM 
 
 class Daemon:
@@ -20,6 +20,15 @@ class Daemon:
 		self.timeout = 1
 		self.history = history
 		self.GPS = {}
+		
+	def gps(self):
+        return self.GPS
+
+    def json(self):
+        return json.dumps(self.GPS)
+
+    def pjson(self):
+        return json.dumps(self.GPS, indent=4, separators=(',', ': '))
 		
 	def daemonize(self):
 		"""
