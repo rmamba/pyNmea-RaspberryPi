@@ -78,13 +78,13 @@ class MyDaemon(Daemon):
             self.stop()
         
         try:
-            self._writeLog("Opening port %s" % self.__device)
+            self._writeLog("Opening port %s" % self.device)
             self.__ser = serial.Serial(port=self.device, baudrate=self.baud, timeout=self.timeout)
             if (self.__ser != None):
                 self._writeLog("Opened...")
                 
         except:
-            self._writeErr("Exception opening port %s" % self.__device)
+            self._writeErr("Exception opening port %s" % self.device)
             self.stop()
 
     def end(self):
