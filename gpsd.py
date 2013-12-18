@@ -19,6 +19,13 @@ import json
 import serial
 
 class MyDaemon(Daemon):
+    
+    #GPS = None
+    
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', device='/dev/tty0', baud='9600', history=None):
+        #self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
+        Daemon.__init__(self, pidfile, stdin, stdout, stderr, device, baud, history)
+    
     def _writeLog(self, msg, isDate=True):
         sys.stdout.write("%s: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), msg))
         sys.stdout.flush()
@@ -47,7 +54,8 @@ class MyDaemon(Daemon):
                 self.__hislog.write(line)
             if (line.startswith('$GPGGA')):
                 GGA = line.split(',')
-                self.GPS['DateTime']['time'] = GGA[1]
+                Daemon.GPS = {}
+                MyDaemon.GPS['DateTime']['time'] = GGA[1]
                 self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
                 self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
                 self.GPS['Satellites'] = GGA[7]
@@ -122,11 +130,11 @@ if __name__ == "__main__":
     elif 'restart' == sys.argv[1]:
         daemon.restart()
     elif 'gps' == sys.argv[1]:
-        print daemon.gps()
+        print daemon.GPS
     elif 'json' == sys.argv[1]:
-        print daemon.json()
+        print json.dumps(daemon.GPS)
     elif 'pjson' == sys.argv[1]:
-        print daemon.pjson()
+        print json.dumps(daemon.GPS, indent=4, separators=(',', ': '))
     else:
         print("Unknown command")
         sys.exit(2)
