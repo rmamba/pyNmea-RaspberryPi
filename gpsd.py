@@ -55,8 +55,7 @@ class MyDaemon(Daemon):
                 self.__hislog.write(line)
             if (line.startswith('$GPGGA')):
                 GGA = line.split(',')
-                Daemon.GPS = {}
-                MyDaemon.GPS['DateTime']['time'] = GGA[1]
+                self.GPS['DateTime']['time'] = GGA[1]
                 self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
                 self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
                 self.GPS['Satellites'] = GGA[7]
@@ -77,7 +76,7 @@ class MyDaemon(Daemon):
                 isChanged = True
             
             if isChanged:
-                with open('gps.json', 'w') as f:
+                with open('/var/log/gps.json', 'w') as f:
                     f.write(json.dumps(self.GPS, indent=4, separators=(',', ': ')))
                     f.flush()
             
@@ -137,12 +136,12 @@ if __name__ == "__main__":
         daemon.stop()
     elif 'restart' == sys.argv[1]:
         daemon.restart()
-    elif 'gps' == sys.argv[1]:
-        print daemon.GPS
-    elif 'json' == sys.argv[1]:
-        print json.dumps(daemon.GPS)
-    elif 'pjson' == sys.argv[1]:
-        print json.dumps(daemon.GPS, indent=4, separators=(',', ': '))
+    #elif 'gps' == sys.argv[1]:
+    #    print daemon.GPS
+    #elif 'json' == sys.argv[1]:
+    #    print json.dumps(daemon.GPS)
+    #elif 'pjson' == sys.argv[1]:
+    #    print json.dumps(daemon.GPS, indent=4, separators=(',', ': '))
     else:
         print("Unknown command")
         sys.exit(2)
