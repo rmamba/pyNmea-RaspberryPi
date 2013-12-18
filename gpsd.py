@@ -49,6 +49,7 @@ class MyDaemon(Daemon):
     def run(self):
         
         while True:
+            isChanged = False
             line = self.__ser.readline()
             if (self.__hislog != None):
                 self.__hislog.write(line)
@@ -61,6 +62,7 @@ class MyDaemon(Daemon):
                 self.GPS['Satellites'] = GGA[7]
                 self.GPS['Dilution'] = GGA[8]
                 self.GPS['Alt'] = float(GGA[9])
+                isChanged = True
             if (line.startswith('$GPRMC')):
                 RMC = line.split(',')
                 self.GPS['DateTime']['utc'] = RMC[1]
@@ -72,6 +74,12 @@ class MyDaemon(Daemon):
                 self.GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
                 self.GPS['Direction'] = float(RMC[8])
                 self.GPS['DateTime']['date'] = RMC[9]
+                isChanged = True
+            
+            if isChanged:
+                with open('gps.json', 'w') as f:
+                    f.write(json.dumps(self.GPS, indent=4, separators=(',', ': ')))
+                    f.flush()
             
     def begin(self):
         self._writeLog("Starting(%s)..." % self.pidfile)
