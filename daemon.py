@@ -4,6 +4,9 @@ import sys, os, time, atexit, json
 from signal import SIGTERM 
 
 class Daemon:
+	
+	GPS = None
+	
 	"""
 	A generic daemon class.
 	
@@ -19,7 +22,7 @@ class Daemon:
 		self.baud = baud
 		self.timeout = 1
 		self.history = history
-		self.GPS = {}
+		self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
 		
 	def gps(self):
 		return self.GPS
@@ -29,9 +32,6 @@ class Daemon:
 
 	def pjson(self):
 		return json.dumps(self.GPS, indent=4, separators=(',', ': '))
-	
-	def setGps(self, gps):
-		self.GPS = gps
 		
 	def daemonize(self):
 		"""
