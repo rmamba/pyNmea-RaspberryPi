@@ -22,12 +22,6 @@ import serial
 
 class MyDaemon(Daemon):
     
-    #global GPS
-    
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', device='/dev/tty0', baud='9600', history=None):
-        #self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
-        Daemon.__init__(self, pidfile, stdin, stdout, stderr, device, baud, history)
-    
     def _writeLog(self, msg, isDate=True):
         sys.stdout.write("%s: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), msg))
         sys.stdout.flush()
@@ -60,7 +54,6 @@ class MyDaemon(Daemon):
                 self.GPS['DateTime']['time'] = GGA[1]
                 self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
                 self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-		#self.GPS['google_maps_url'] = 'https://maps.google.com/?q={0},{1}'.format(self.GPS['Lat'], self.GPS['Lon'])
                 self.GPS['Satellites'] = GGA[7]
                 self.GPS['Dilution'] = GGA[8]
                 self.GPS['Alt'] = float(GGA[9])
@@ -80,11 +73,7 @@ class MyDaemon(Daemon):
             
             if isChanged:
 		gps = urllib.quote(json.dumps(self.GPS))
-		print "urlencoded: " + gps
 		urllib2.urlopen('http://127.0.0.1:666/GPS/'+gps).read()
-            #    with open('/var/log/gps.json', 'w') as f:
-            #        f.write(json.dumps(self.GPS, indent=4, separators=(',', ': ')))
-            #        f.flush()
             
     def begin(self):
         self._writeLog("Starting(%s)..." % self.pidfile)
