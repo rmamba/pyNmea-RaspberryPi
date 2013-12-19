@@ -5,7 +5,8 @@ from signal import SIGTERM
 
 class Daemon:
 	
-	GPS = None
+	#global GPS
+	GPS = {'Lat':None, 'Lon':None, 'google_maps_url': None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
 	
 	"""
 	A generic daemon class.
@@ -22,16 +23,20 @@ class Daemon:
 		self.baud = baud
 		self.timeout = 1
 		self.history = history
-		Daemon.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
+		#self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
+		#print id(self.GPS)
 		
-	def gps(self):
-		return self.GPS
+	@staticmethod
+	def setGPS(gps):
+		Daemon.GPS = gps
 
-	def json(self):
-		return json.dumps(self.GPS)
+	@staticmethod
+	def json():
+		return json.dumps(Daemon.GPS)
 
-	def pjson(self):
-		return json.dumps(self.GPS, indent=4, separators=(',', ': '))
+	@staticmethod
+	def pjson():
+		return json.dumps(Daemon.GPS, indent=4, separators=(',', ': '))
 		
 	def daemonize(self):
 		"""

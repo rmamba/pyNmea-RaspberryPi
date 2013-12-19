@@ -14,13 +14,15 @@ import sys
 import time
 import math
 import json
+import urllib
+import urllib2
 
 #sudo apt-get install python-serial
 import serial
 
 class MyDaemon(Daemon):
     
-    #GPS = None
+    #global GPS
     
     def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', device='/dev/tty0', baud='9600', history=None):
         #self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
@@ -58,6 +60,7 @@ class MyDaemon(Daemon):
                 self.GPS['DateTime']['time'] = GGA[1]
                 self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
                 self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
+		#self.GPS['google_maps_url'] = 'https://maps.google.com/?q={0},{1}'.format(self.GPS['Lat'], self.GPS['Lon'])
                 self.GPS['Satellites'] = GGA[7]
                 self.GPS['Dilution'] = GGA[8]
                 self.GPS['Alt'] = float(GGA[9])
@@ -69,16 +72,19 @@ class MyDaemon(Daemon):
                 
                 self.GPS['Speed']['knots'] = float(RMC[7])
                 self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.85200000
-                self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.15077945
+                self.GPS['Speed']['mph'] = float(RMC[7]) * 1.15077945
                 self.GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
                 self.GPS['Direction'] = float(RMC[8])
                 self.GPS['DateTime']['date'] = RMC[9]
                 isChanged = True
             
             if isChanged:
-                with open('/var/log/gps.json', 'w') as f:
-                    f.write(json.dumps(self.GPS, indent=4, separators=(',', ': ')))
-                    f.flush()
+		gps = urllib.quote(json.dumps(self.GPS))
+		print "urlencoded: " + gps
+		urllib2.urlopen('http://127.0.0.1:666/GPS/'+gps).read()
+            #    with open('/var/log/gps.json', 'w') as f:
+            #        f.write(json.dumps(self.GPS, indent=4, separators=(',', ': ')))
+            #        f.flush()
             
     def begin(self):
         self._writeLog("Starting(%s)..." % self.pidfile)
@@ -127,6 +133,7 @@ if __name__ == "__main__":
     __baud = __config['baud']
     __log = __config['log']
     __history = __config['history']
+    __url = 'http://127.0.0.1:666'
         
     daemon = MyDaemon('/var/run/gpsd.pid', '/dev/null', __log, '/var/log/gpsd.error.log', __device, __baud, __history)
 
@@ -138,10 +145,10 @@ if __name__ == "__main__":
         daemon.restart()
     #elif 'gps' == sys.argv[1]:
     #    print daemon.GPS
-    #elif 'json' == sys.argv[1]:
-    #    print json.dumps(daemon.GPS)
-    #elif 'pjson' == sys.argv[1]:
-    #    print json.dumps(daemon.GPS, indent=4, separators=(',', ': '))
+    elif 'json' == sys.argv[1]:
+	print urllib2.urlopen(__url+'/GPS').read()
+    elif 'pjson' == sys.argv[1]:
+        print urllib2.urlopen(__url+'/GPS?pjson').read()
     else:
         print("Unknown command")
         sys.exit(2)
