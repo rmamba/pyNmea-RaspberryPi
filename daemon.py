@@ -12,7 +12,7 @@ class Daemon:
 	
 	Usage: subclass the Daemon class and override the run() method
 	"""
-	def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', device='/dev/tty0', baud='9600', history=None):
+	def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', device='/dev/tty0', baud='9600', history=None, restDb='127.0.0.1:666'):
 		self.stdin = stdin
 		self.stdout = stdout
 		self.stderr = stderr
@@ -22,7 +22,8 @@ class Daemon:
 		self.baud = baud
 		self.timeout = 1
 		self.history = history
-		Daemon.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
+		self.restDbUrl = 'http://'+ restDb
+		self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
 		
 	def gps(self):
 		return self.GPS
