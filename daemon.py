@@ -4,10 +4,6 @@ import sys, os, time, atexit, json
 from signal import SIGTERM 
 
 class Daemon:
-	
-	#global GPS
-	GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
-	
 	"""
 	A generic daemon class.
 	
