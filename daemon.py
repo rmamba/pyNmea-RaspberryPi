@@ -5,7 +5,8 @@ from signal import SIGTERM
 
 class Daemon:
 	
-	GPS = None
+	#global GPS
+	GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
 	
 	"""
 	A generic daemon class.
@@ -24,15 +25,6 @@ class Daemon:
 		self.history = history
 		self.restDbUrl = 'http://'+ restDb
 		self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
-		
-	def gps(self):
-		return self.GPS
-
-	def json(self):
-		return json.dumps(self.GPS)
-
-	def pjson(self):
-		return json.dumps(self.GPS, indent=4, separators=(',', ': '))
 		
 	def daemonize(self):
 		"""
