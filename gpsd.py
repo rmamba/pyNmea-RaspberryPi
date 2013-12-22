@@ -190,12 +190,12 @@ if __name__ == "__main__":
 	elif 'restart' == sys.argv[1]:
 		daemon.restart()
 	elif 'gmaps' == sys.argv[1]:
-		json = urllib2.urlopen(__dbUrl+'/GPS').read()
-		url = 'https://maps.google.com?q={0},{1}'.format(json['Lat'], json['Lon'])
+		_json = json.loads(urllib2.urlopen(__dbUrl+'/GPS').read())
+		url = 'https://maps.google.com?q={Lat},{Lon}'.format(**_json)
 		print url
 	elif 'location' == sys.argv[1]:
-		json = urllib2.urlopen(__dbUrl+'/GPS').read()
-		loc = "Lat: {0}\r\nLon: {1}\r\nAlt: {2}".format(json['Lat'], json['Lon'], json['Alt'])
+		_json = json.loads(urllib2.urlopen(__dbUrl+'/GPS').read())
+		loc = "Lat: {Lat}\r\nLon: {Lon}\r\nAlt: {Alt}".format(**_json)
 		print loc
 	elif 'json' == sys.argv[1]:
 		print urllib2.urlopen(__dbUrl+'/GPS').read()
