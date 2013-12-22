@@ -156,27 +156,27 @@ if __name__ == "__main__":
 	f.close()
 	
 	__device = '/dev/ttyUSB0'
-	if 'device' in _config:
+	if 'device' in __config:
 		__device = __config['device']
 	
 	__baud = 4800
-	if 'baud' in _config:
+	if 'baud' in __config:
 		__baud = __config['baud']
 	
 	__log = '/var/log/gpsd.log'
-	if 'log' in _config:
+	if 'log' in __config:
 		__log = __config['log']
 		
 	__errlog = '/var/log/gpsd.error.log'
-	if 'errlog' in _config:
+	if 'errlog' in __config:
 		__errlog = __config['errlog']
 	
 	__history = None
-	if 'history' in _config:
+	if 'history' in __config:
 		__history = __config['history']
 		
 	__dbUrl = '127.0.0.1:666'
-	if 'RestDB' in _config:
+	if 'RestDB' in __config:
 		__dbUrl = 'http://' + __config['RestDB']
 		
 	__dbUrlPass = None
