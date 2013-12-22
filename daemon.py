@@ -20,7 +20,7 @@ class Daemon:
 		self.history = history
 		self.restDbUrl = restDb
 		self.restDbPass = restDbPass
-		self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Warning': None }
+		self.GPS = {'Lat':None, 'Lon':None, 'Alt':None, 'Direction':None, 'Satellites':None, 'Quality':None, 'Dilution':None, 'DateTime': {'utc': None, 'time': None, 'date': None}, 'Speed': {'knots': None, 'kmh': None, 'mph': None, 'mps': None}, 'Url': {}, 'Warning': None }
 		
 	def daemonize(self):
 		"""

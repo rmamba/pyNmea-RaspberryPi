@@ -89,6 +89,7 @@ class MyDaemon(Daemon):
 					self.GPS['DateTime']['time'] = self._toFloat(GGA[1])
 					self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
 					self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
+					self.GPS['Url']['GoogleMaps'] = 'https://maps.google.com?q={Lat},{Lon}'.format(**self.GPS)
 					self.GPS['Satellites'] = self._toInt(GGA[7])
 					self.GPS['Dilution'] = self._toFloat(GGA[8])
 					self.GPS['Alt'] = self._toFloat(GGA[9])
@@ -109,7 +110,7 @@ class MyDaemon(Daemon):
 				
 				#if isChanged:
 					r = requests.post(self.restDbUrl+'/post/GPS', data=json.dumps(self.GPS), headers={'Content-Type': 'application/json'})
-					if r.status != 200:
+					if r.status_code != 200:
 						self._writeErr(r.text)
 			time.sleep(.2)
 			
