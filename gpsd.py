@@ -110,6 +110,8 @@ class MyDaemon(Daemon):
 				
 				#if isChanged:
 					gps = urllib.quote(json.dumps(self.GPS))
+					if self.restDbPass != None:
+						gps += '?secret='+self.restDbPass
 					urllib2.urlopen(self.restDbUrl+'/GPS/'+gps).read()
 			time.sleep(.2)
 			
@@ -121,7 +123,7 @@ class MyDaemon(Daemon):
 			if (self.history != None):
 				self.__hislog = open(self.history, 'w')
 		except:
-			self._writeErr("Exception crating history file %s" % self.history)
+			self._writeErr("Exception creating history file %s" % self.history)
 			self.stop()
 		
 		try:
@@ -145,24 +147,41 @@ class MyDaemon(Daemon):
 
 if __name__ == "__main__":
 	if len(sys.argv) != 2:
-		print("usage: %s start|stop|restart|gps|json|pjson" % sys.argv[0])
+		print("usage: %s start|stop|restart|gmaps|json|pjson|location" % sys.argv[0])
 		sys.exit(2)
 	
 	f = open('gpsd.config', 'r')
 	s = f.read()
 	__config = json.loads(s)
 	f.close()
-	if (__config['device']==''):
-		print("Device not found in configuration file")
-		sys.exit(1)
-
-	__device = __config['device']
-	__baud = __config['baud']
-	__log = __config['log']
-	__history = __config['history']
-	__url = 'http://' + __config['RestDB']
+	
+	__device = '/dev/ttyUSB0'
+	if 'device' in _config:
+		__device = __config['device']
+	
+	__baud = 4800
+	if 'baud' in _config:
+		__baud = __config['baud']
+	
+	__log = '/var/log/gpsd.log'
+	if 'log' in _config:
+		__log = __config['log']
 		
-	daemon = MyDaemon('/var/run/gpsd.pid', '/dev/null', __log, '/var/log/gpsd.error.log', __device, __baud, __history, __url)
+	__errlog = '/var/log/gpsd.error.log'
+	if 'errlog' in _config:
+		__errlog = __config['errlog']
+	
+	__history = None
+	if 'history' in _config:
+		__history = __config['history']
+		
+	__dbUrl = '127.0.0.1:666'
+	if 'RestDB' in _config:
+		__dbUrl = 'http://' + __config['RestDB']
+		
+	__dbUrlPass = None
+		
+	daemon = MyDaemon('/var/run/gpsd.pid', '/dev/null', __log, __errlog, __device, __baud, __history, __dbUrl, __dbUrlPass)
 
 	if 'start' == sys.argv[1]:
 		daemon.start()
@@ -170,6 +189,14 @@ if __name__ == "__main__":
 		daemon.stop()
 	elif 'restart' == sys.argv[1]:
 		daemon.restart()
+	elif 'gmaps' == sys.argv[1]:
+		json = urllib2.urlopen(__url+'/GPS').read()
+		url = 'https://maps.google.com?q={0},{1}'.format(json['Lat'], json['Lon'])
+		print url
+	elif 'location' == sys.argv[1]:
+		json = urllib2.urlopen(__url+'/GPS').read()
+		loc = "Lat: {0}\r\nLon: {1}\r\nAlt: {2}".format(json['Lat'], json['Lon'], json['Alt'])
+		print loc
 	elif 'json' == sys.argv[1]:
 		print urllib2.urlopen(__url+'/GPS').read()
 	elif 'pjson' == sys.argv[1]:
