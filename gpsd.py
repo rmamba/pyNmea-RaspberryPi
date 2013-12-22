@@ -14,8 +14,7 @@ import sys
 import time
 import math
 import json
-import urllib
-import urllib2
+import requests
 
 #sudo apt-get install python-serial
 import serial
@@ -109,10 +108,9 @@ class MyDaemon(Daemon):
 					isChanged = True
 				
 				#if isChanged:
-					gps = urllib.quote(json.dumps(self.GPS))
-					if self.restDbPass != None:
-						gps += '?secret='+self.restDbPass
-					urllib2.urlopen(self.restDbUrl+'/GPS/'+gps).read()
+					r = requests.post(self.restDbUrl+'/post/GPS', data=json.dumps(self.GPS), headers={'Content-Type': 'application/json'})
+					if r.status != '200':
+						
 			time.sleep(.2)
 			
 	def begin(self):
@@ -190,17 +188,21 @@ if __name__ == "__main__":
 	elif 'restart' == sys.argv[1]:
 		daemon.restart()
 	elif 'gmaps' == sys.argv[1]:
-		_json = json.loads(urllib2.urlopen(__dbUrl+'/GPS').read())
+		r = requests.get(__dbUrl+'/GPS', headers={'Content-Type': 'application/json'})
+		_json = json.loads(r.text)
 		url = 'https://maps.google.com?q={Lat},{Lon}'.format(**_json)
 		print url
 	elif 'location' == sys.argv[1]:
-		_json = json.loads(urllib2.urlopen(__dbUrl+'/GPS').read())
+		r = requests.get(__dbUrl+'/GPS', headers={'Content-Type': 'application/json'})
+		_json = json.loads(r.text)
 		loc = "Lat: {Lat}\r\nLon: {Lon}\r\nAlt: {Alt}".format(**_json)
 		print loc
 	elif 'json' == sys.argv[1]:
-		print urllib2.urlopen(__dbUrl+'/GPS').read()
+		r = requests.get(__dbUrl+'/GPS', headers={'Content-Type': 'application/json'})
+		print r.text
 	elif 'pjson' == sys.argv[1]:
-		print urllib2.urlopen(__dbUrl+'/GPS?pjson').read()
+		r = requests.get(__dbUrl+'/GPS', headers={'Content-Type': 'application/json'})
+		print r.text
 	else:
 		print("Unknown command")
 		sys.exit(2)
