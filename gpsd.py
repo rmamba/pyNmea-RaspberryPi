@@ -46,7 +46,7 @@ class MyDaemon(Daemon):
 			if ((side.upper() == "S") or (side.upper()=="W")):
 				val *= -1
 		except ValueError:
-			_writeErr("Can't calculate from {0} side {1}".format(latlon, side))
+			self._writeErr("Can't calculate from {0} side {1}".format(latlon, side))
 			val = None
 		return val
 	def _toFloat(self, value):
@@ -84,31 +84,31 @@ class MyDaemon(Daemon):
 					self.__hislog.write(line)
 				if (line.startswith('$GPGGA')):
 					GGA = line.split(',')
-					self.GPS['DateTime']['time'] = _toFloat(GGA[1])
+					self.GPS['DateTime']['time'] = self._toFloat(GGA[1])
 					self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
 					self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-					self.GPS['Satellites'] = _toInt(GGA[7])
-					self.GPS['Dilution'] = _toFloat(GGA[8])
-					self.GPS['Alt'] = _toFloat(GGA[9])
+					self.GPS['Satellites'] = self._toInt(GGA[7])
+					self.GPS['Dilution'] = self._toFloat(GGA[8])
+					self.GPS['Alt'] = self._toFloat(GGA[9])
 					isChanged = True
 				if (line.startswith('$GPRMC')):
 					RMC = line.split(',')
-					self.GPS['DateTime']['utc'] = _toFloat(RMC[1])
+					self.GPS['DateTime']['utc'] = self._toFloat(RMC[1])
 					self.GPS['Warning'] = RMC[2]
 					
-					_knots = _toFloat(RMC[7])
+					_knots = self._toFloat(RMC[7])
 					self.GPS['Speed']['knots'] = _knots
 					self.GPS['Speed']['kmh'] = _knots * 1.85200000
 					self.GPS['Speed']['kmh'] = _knots * 1.15077945
 					self.GPS['Speed']['mps'] = _knots * 0.51444444
-					self.GPS['Direction'] = _toFloat(RMC[8])
-					self.GPS['DateTime']['date'] = _toInt(RMC[9])
+					self.GPS['Direction'] = self._toFloat(RMC[8])
+					self.GPS['DateTime']['date'] = self._toInt(RMC[9])
 					isChanged = True
 				
 				#if isChanged:
 					gps = urllib.quote(json.dumps(self.GPS))
 					urllib2.urlopen(self.restDbUrl+'/GPS/'+gps).read()
-			time.sleep(.33)
+			time.sleep(.2)
 			
 	def begin(self):
 		self._writeLog("Starting(%s)..." % self.pidfile)
