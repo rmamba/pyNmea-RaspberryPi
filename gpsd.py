@@ -109,8 +109,8 @@ class MyDaemon(Daemon):
 				
 				#if isChanged:
 					r = requests.post(self.restDbUrl+'/post/GPS', data=json.dumps(self.GPS), headers={'Content-Type': 'application/json'})
-					if r.status != '200':
-						
+					if r.status != 200:
+						self._writeErr(r.text)
 			time.sleep(.2)
 			
 	def begin(self):
