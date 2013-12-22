@@ -29,6 +29,7 @@ class MyDaemon(Daemon):
 	def _writeErr(self, msg, isDate=True):
 		sys.stderr.write("%s: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), msg))
 		sys.stderr.flush()
+		
 	def _toDoubleLatLong(self, latlon, side):
 		val = None
 		
@@ -49,6 +50,7 @@ class MyDaemon(Daemon):
 			self._writeErr("Can't calculate from {0} side {1}".format(latlon, side))
 			val = None
 		return val
+	
 	def _toFloat(self, value):
 		val = None
 		
@@ -58,9 +60,10 @@ class MyDaemon(Daemon):
 		try:
 			val = float(value)
 		except ValueError:
-			_writeErr("Can't convert to float: {0}".format(value))
+			self._writeErr("Can't convert to float: {0}".format(value))
 			val = None
 		return val
+	
 	def _toInt(self, value):
 		val = None
 		
@@ -70,7 +73,7 @@ class MyDaemon(Daemon):
 		try:
 			val = int(value)
 		except ValueError:
-			_writeErr("Can't convert to int: {0}".format(value))
+			self._writeErr("Can't convert to int: {0}".format(value))
 			val = None
 		return val
 	
