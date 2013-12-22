@@ -190,17 +190,17 @@ if __name__ == "__main__":
 	elif 'restart' == sys.argv[1]:
 		daemon.restart()
 	elif 'gmaps' == sys.argv[1]:
-		json = urllib2.urlopen(__url+'/GPS').read()
+		json = urllib2.urlopen(__dbUrl+'/GPS').read()
 		url = 'https://maps.google.com?q={0},{1}'.format(json['Lat'], json['Lon'])
 		print url
 	elif 'location' == sys.argv[1]:
-		json = urllib2.urlopen(__url+'/GPS').read()
+		json = urllib2.urlopen(__dbUrl+'/GPS').read()
 		loc = "Lat: {0}\r\nLon: {1}\r\nAlt: {2}".format(json['Lat'], json['Lon'], json['Alt'])
 		print loc
 	elif 'json' == sys.argv[1]:
-		print urllib2.urlopen(__url+'/GPS').read()
+		print urllib2.urlopen(__dbUrl+'/GPS').read()
 	elif 'pjson' == sys.argv[1]:
-		print urllib2.urlopen(__url+'/GPS?pjson').read()
+		print urllib2.urlopen(__dbUrl+'/GPS?pjson').read()
 	else:
 		print("Unknown command")
 		sys.exit(2)
