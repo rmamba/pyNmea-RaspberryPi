@@ -30,16 +30,48 @@ class MyDaemon(Daemon):
 		sys.stderr.write("%s: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), msg))
 		sys.stderr.flush()
 	def _toDoubleLatLong(self, latlon, side):
-		val = 0
-		tmp = float(latlon)
-		tmp /= 100
-		val = math.floor(tmp)
-		tmp = (tmp - val) * 100
-		val += tmp/60
-		tmp -= math.floor(tmp)
-		tmp *= 60
-		if ((side.upper() == "S") or (side.upper()=="W")):
-			val *= -1
+		val = None
+		
+		if ((latlon == None) or (side == None)):
+			return None
+		
+		try:
+			tmp = float(latlon)
+			tmp /= 100
+			val = math.floor(tmp)
+			tmp = (tmp - val) * 100
+			val += tmp/60
+			tmp -= math.floor(tmp)
+			tmp *= 60
+			if ((side.upper() == "S") or (side.upper()=="W")):
+				val *= -1
+		except ValueError:
+			_writeErr("Can't calculate from {0} side {1}".format(latlon, side))
+			val = None
+		return val
+	def _toFloat(self, value):
+		val = None
+		
+		if value==None:
+			return None
+		
+		try:
+			val = float(value)
+		except ValueError:
+			_writeErr("Can't convert to float: {0}".format(value))
+			val = None
+		return val
+	def _toInt(self, value):
+		val = None
+		
+		if value==None:
+			return None
+		
+		try:
+			val = int(value)
+		except ValueError:
+			_writeErr("Can't convert to int: {0}".format(value))
+			val = None
 		return val
 	
 	def run(self):
@@ -52,24 +84,25 @@ class MyDaemon(Daemon):
 					self.__hislog.write(line)
 				if (line.startswith('$GPGGA')):
 					GGA = line.split(',')
-					self.GPS['DateTime']['time'] = float(GGA[1])
+					self.GPS['DateTime']['time'] = _toFloat(GGA[1])
 					self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
 					self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-					self.GPS['Satellites'] = int(GGA[7])
-					self.GPS['Dilution'] = float(GGA[8])
-					self.GPS['Alt'] = float(GGA[9])
+					self.GPS['Satellites'] = _toInt(GGA[7])
+					self.GPS['Dilution'] = _toFloat(GGA[8])
+					self.GPS['Alt'] = _toFloat(GGA[9])
 					isChanged = True
 				if (line.startswith('$GPRMC')):
 					RMC = line.split(',')
-					self.GPS['DateTime']['utc'] = float(RMC[1])
+					self.GPS['DateTime']['utc'] = _toFloat(RMC[1])
 					self.GPS['Warning'] = RMC[2]
 					
-					self.GPS['Speed']['knots'] = float(RMC[7])
-					self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.85200000
-					self.GPS['Speed']['kmh'] = float(RMC[7]) * 1.15077945
-					self.GPS['Speed']['mps'] = float(RMC[7]) * 0.51444444
-					self.GPS['Direction'] = float(RMC[8])
-					self.GPS['DateTime']['date'] = int(RMC[9])
+					_knots = _toFloat(RMC[7])
+					self.GPS['Speed']['knots'] = _knots
+					self.GPS['Speed']['kmh'] = _knots * 1.85200000
+					self.GPS['Speed']['kmh'] = _knots * 1.15077945
+					self.GPS['Speed']['mps'] = _knots * 0.51444444
+					self.GPS['Direction'] = _toFloat(RMC[8])
+					self.GPS['DateTime']['date'] = _toInt(RMC[9])
 					isChanged = True
 				
 				#if isChanged:
