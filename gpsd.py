@@ -28,13 +28,16 @@ class MyDaemon(Daemon):
 	def _writeErr(self, msg, isDate=True):
 		sys.stderr.write("%s: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), msg))
 		sys.stderr.flush()
-		
+	
+	def _isNoneOrEmptry(self, val):
+		if (va==None) or (val==""):
+			return True
+		return False
+	
 	def _toDoubleLatLong(self, latlon, side):
 		val = None
-		
-		if ((latlon == None) or (side == None)):
+		if (self.__ser.read(latlon) or self.__ser.read(side)):
 			return None
-		
 		try:
 			tmp = float(latlon)
 			tmp /= 100
@@ -52,10 +55,8 @@ class MyDaemon(Daemon):
 	
 	def _toFloat(self, value):
 		val = None
-		
-		if value==None:
+		if self.__ser.read(value):
 			return None
-		
 		try:
 			val = float(value)
 		except ValueError:
@@ -65,10 +66,8 @@ class MyDaemon(Daemon):
 	
 	def _toInt(self, value):
 		val = None
-		
-		if value==None:
+		if self.__ser.read(value):
 			return None
-		
 		try:
 			val = int(value)
 		except ValueError:
@@ -77,7 +76,6 @@ class MyDaemon(Daemon):
 		return val
 	
 	def run(self):
-		
 		while True:
 			isChanged = False
 			if self.__ser.inWaiting()>40:
