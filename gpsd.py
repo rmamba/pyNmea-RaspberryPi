@@ -89,7 +89,7 @@ class MyDaemon(Daemon):
 					self.GPS['DateTime']['time'] = self._toFloat(GGA[1])
 					self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
 					self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-					self.GPS['Url']['GoogleMaps'] = 'https://maps.google.com?q={Lat},{Lon}'.format(**self.GPS)
+					self.GPS['Url']['GoogleMaps'] = 'https://maps.google.com?q={Lat},{Lon}&z=17'.format(**self.GPS)
 					self.GPS['Satellites'] = self._toInt(GGA[7])
 					self.GPS['Dilution'] = self._toFloat(GGA[8])
 					self.GPS['Alt'] = self._toFloat(GGA[9])
@@ -100,10 +100,12 @@ class MyDaemon(Daemon):
 					self.GPS['Warning'] = RMC[2]
 					
 					_knots = self._toFloat(RMC[7])
-					self.GPS['Speed']['knots'] = _knots
-					self.GPS['Speed']['kmh'] = _knots * 1.85200000
-					self.GPS['Speed']['kmh'] = _knots * 1.15077945
-					self.GPS['Speed']['mps'] = _knots * 0.51444444
+					self.GPS['Speed']['knots'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['mps'] = None
+					if _knots != None:
+						self.GPS['Speed']['knots'] = _knots
+						self.GPS['Speed']['kmh'] = _knots * 1.85200000
+						self.GPS['Speed']['mph'] = _knots * 1.15077945
+						self.GPS['Speed']['mps'] = _knots * 0.51444444
 					self.GPS['Direction'] = self._toFloat(RMC[8])
 					self.GPS['DateTime']['date'] = self._toInt(RMC[9])
 					isChanged = True
