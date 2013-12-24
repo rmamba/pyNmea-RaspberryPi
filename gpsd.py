@@ -30,7 +30,7 @@ class MyDaemon(Daemon):
 		sys.stderr.flush()
 	
 	def _isNoneOrEmptry(self, val):
-		if (va==None) or (val==""):
+		if (val==None) or (val==""):
 			return True
 		return False
 	
