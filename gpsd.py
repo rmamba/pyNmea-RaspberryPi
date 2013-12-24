@@ -36,7 +36,7 @@ class MyDaemon(Daemon):
 	
 	def _toDoubleLatLong(self, latlon, side):
 		val = None
-		if (self.__ser.read(latlon) or self.__ser.read(side)):
+		if (self._isNoneOrEmptry(latlon) or self._isNoneOrEmptry(side)):
 			return None
 		try:
 			tmp = float(latlon)
@@ -55,7 +55,7 @@ class MyDaemon(Daemon):
 	
 	def _toFloat(self, value):
 		val = None
-		if self.__ser.read(value):
+		if self._isNoneOrEmptry(value):
 			return None
 		try:
 			val = float(value)
@@ -66,7 +66,7 @@ class MyDaemon(Daemon):
 	
 	def _toInt(self, value):
 		val = None
-		if self.__ser.read(value):
+		if self._isNoneOrEmptry(value):
 			return None
 		try:
 			val = int(value)
