@@ -77,43 +77,50 @@ class MyDaemon(Daemon):
 		return val
 	
 	def run(self):
-		
 		while True:
 			isChanged = False
-			if self.__ser.inWaiting()>40:
-				line = self.__ser.readline()
-				if (self.__hislog != None):
-					self.__hislog.write(line)
-				if (line.startswith('$GPGGA')):
-					GGA = line.split(',')
-					self.GPS['DateTime']['time'] = self._toFloat(GGA[1])
-					self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
-					self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
-					self.GPS['Url']['GoogleMaps'] = 'https://maps.google.com?q={Lat},{Lon}&z=17'.format(**self.GPS)
-					self.GPS['Satellites'] = self._toInt(GGA[7])
-					self.GPS['Dilution'] = self._toFloat(GGA[8])
-					self.GPS['Alt'] = self._toFloat(GGA[9])
-					isChanged = True
-				if (line.startswith('$GPRMC')):
-					RMC = line.split(',')
-					self.GPS['DateTime']['utc'] = self._toFloat(RMC[1])
-					self.GPS['Warning'] = RMC[2]
+			serData = ""
+			if self.__ser.inWaiting()>0:
+				while self.__ser.inWaiting()>0:
+					serData += self.__ser.read()
+				serLines = serData.split("\r\n", 1)
+				line = None
+				if len(serLines) == 2:
+					line = serLines[0]
+					serData = serLines[1]
+				if line != None:
+					if (self.__hislog != None):
+						self.__hislog.write(line)
+					if (line.startswith('$GPGGA')):
+						GGA = line.split(',')
+						self.GPS['DateTime']['time'] = self._toFloat(GGA[1])
+						self.GPS['Lat'] = self._toDoubleLatLong(GGA[2], GGA[3]) 
+						self.GPS['Lon'] = self._toDoubleLatLong(GGA[4], GGA[5])
+						self.GPS['Url']['GoogleMaps'] = 'https://maps.google.com?q={Lat},{Lon}&z=17'.format(**self.GPS)
+						self.GPS['Satellites'] = self._toInt(GGA[7])
+						self.GPS['Dilution'] = self._toFloat(GGA[8])
+						self.GPS['Alt'] = self._toFloat(GGA[9])
+						isChanged = True
+					if (line.startswith('$GPRMC')):
+						RMC = line.split(',')
+						self.GPS['DateTime']['utc'] = self._toFloat(RMC[1])
+						self.GPS['Warning'] = RMC[2]
+						
+						_knots = self._toFloat(RMC[7])
+						self.GPS['Speed']['knots'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['mps'] = None
+						if _knots != None:
+							self.GPS['Speed']['knots'] = _knots
+							self.GPS['Speed']['kmh'] = _knots * 1.85200000
+							self.GPS['Speed']['mph'] = _knots * 1.15077945
+							self.GPS['Speed']['mps'] = _knots * 0.51444444
+						self.GPS['Direction'] = self._toFloat(RMC[8])
+						self.GPS['DateTime']['date'] = self._toInt(RMC[9])
+						isChanged = True
 					
-					_knots = self._toFloat(RMC[7])
-					self.GPS['Speed']['knots'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['mps'] = None
-					if _knots != None:
-						self.GPS['Speed']['knots'] = _knots
-						self.GPS['Speed']['kmh'] = _knots * 1.85200000
-						self.GPS['Speed']['mph'] = _knots * 1.15077945
-						self.GPS['Speed']['mps'] = _knots * 0.51444444
-					self.GPS['Direction'] = self._toFloat(RMC[8])
-					self.GPS['DateTime']['date'] = self._toInt(RMC[9])
-					isChanged = True
-				
-				#if isChanged:
-					r = requests.post(self.restDbUrl+'/post/GPS', data=json.dumps(self.GPS), headers={'Content-Type': 'application/json'})
-					if r.status_code != 200:
-						self._writeErr(r.text)
+					#if isChanged:
+						r = requests.post(self.restDbUrl+'/post/GPS', data=json.dumps(self.GPS), headers={'Content-Type': 'application/json'})
+						if r.status_code != 200:
+							self._writeErr(r.text)
 			time.sleep(.2)
 			
 	def begin(self):
