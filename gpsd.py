@@ -98,7 +98,7 @@ class MyDaemon(Daemon):
 					self.GPS['Warning'] = RMC[2]
 					
 					_knots = self._toFloat(RMC[7])
-					self.GPS['Speed']['knots'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['mps'] = None
+					self.GPS['Speed']['knots'] = self.GPS['Speed']['kmh'] = self.GPS['Speed']['mph'] = self.GPS['Speed']['mps'] = None
 					if _knots != None:
 						self.GPS['Speed']['knots'] = _knots
 						self.GPS['Speed']['kmh'] = _knots * 1.85200000
