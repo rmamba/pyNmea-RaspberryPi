@@ -16,7 +16,8 @@ import math
 import json
 import requests
 
-#sudo apt-get install python-serial
+#Raspian(rPi): sudo apt-get install python-serial
+#OpenSuse: zypper install python-serial
 import serial
 
 class MyDaemon(Daemon):
